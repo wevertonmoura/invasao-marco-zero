@@ -6,7 +6,8 @@ import confetti from 'canvas-confetti';
 import { 
   MapPin, Calendar, Clock, CheckCircle, 
   AlertCircle, ArrowRight, Activity, Zap, Trophy, Mail, 
-  Loader2, Lock, HelpCircle, Instagram, CalendarPlus, Ship
+  Loader2, Lock, HelpCircle, Instagram, CalendarPlus, Ship,
+  Camera // <-- Adicionado o ícone da Câmera aqui
 } from 'lucide-react';
 
 import GaleriaExperiencia from './components/GaleriaExperiencia'; 
@@ -113,34 +114,22 @@ const FAQSection = () => {
   );
 };
 
-// --- HERO SECTION (LIMPA & NITIDA) ---
-// --- HERO SECTION (CORRIGIDA: Cores Naturais da Imagem) ---
 const Hero = ({ onRegisterClick }: { onRegisterClick: () => void }) => (
-  // min-h-[500px] garante que a seção ocupe quase toda a tela inicial
   <section className="relative pt-12 pb-20 px-4 overflow-hidden min-h-[500px] flex items-center justify-center">
-    
-    {/* ✨ A IMAGEM DE FUNDO COM CORES NATURAIS (OPACIDADE 100%) */}
     <div className="absolute inset-0 z-0">
       <img 
-        src="/images/old-recife-marco-zero.jpg" // Nome exato do arquivo no public/images/
+        src="/images/old-recife-marco-zero.jpg" 
         alt="Fundo Marco Zero nítido" 
-        // MUDANÇA AQUI: Opacidade 100% para cor natural.
         className="w-full h-full object-cover opacity-100" 
       />
-      {/* MUDANÇA AQUI: Um overlay escuro sutil para blindar a leitura do texto branco.
-          O degradê começa escuro embaixo (para o botão laranja e contagem) e clareia em cima. */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
     </div>
     
     <div className="container mx-auto max-w-xl text-center relative z-10 flex flex-col items-center pt-8">
-      
-      {/* Logo removida DEFINITIVAMENTE daqui */}
-
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50/70 border border-blue-200/50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm backdrop-blur-sm relative z-20">
         <Ship className="w-4 h-4" /> Inclui Travessia de Barco (R$ 7,00)
       </div>
 
-      {/* Titulos com drop-shadow blindando a leitura contra a foto nítida */}
       <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-white mb-6 leading-[0.9] drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] relative z-20">
         TREINÃO<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">MARCO ZERO</span>
       </h1>
@@ -158,9 +147,7 @@ const Hero = ({ onRegisterClick }: { onRegisterClick: () => void }) => (
   </section>
 );
 
-
 const InfoSection = () => (
-  // Zebra: Cinza Claro
   <section className="py-10 px-4 bg-slate-50 border-t border-slate-200 shadow-inner">
     <div className="container mx-auto max-w-lg">
       <div className="text-center mb-10">
@@ -223,6 +210,9 @@ const RegistrationForm = () => {
   const [confirmedData, setConfirmedData] = useState<any>(null); 
   const [isFreshRegistration, setIsFreshRegistration] = useState(false);
   
+  // NOVO ESTADO: Guarda a foto escolhida da galeria
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
+  
   const agora = new Date();
   const inscricoesEncerradas = agora > DATA_LIMITE;
   const [formData, setFormData] = useState({ name: '', email: '', distance: 'Corrida 8km', health: '', health_details: '', termsAccepted: false });
@@ -248,7 +238,16 @@ const RegistrationForm = () => {
   const handleReset = () => {
     localStorage.removeItem('invasores_marco_zero');
     setSuccess(false); setConfirmedData(null); setIsFreshRegistration(false);
+    setUserPhoto(null); // Limpa a foto
     setFormData({ name: '', email: '', distance: 'Corrida 8km', health: '', health_details: '', termsAccepted: false });
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setUserPhoto(imageUrl);
+    }
   };
 
   const handleSubmit = async () => {
@@ -291,6 +290,7 @@ const RegistrationForm = () => {
     }
   }, [success, confirmedData, isFreshRegistration]);
 
+  // === TELA DE SUCESSO (CARTÃO PREMIUM BRANCO) ===
   if (success && confirmedData) {
     const shareText = encodeURIComponent(`Fala! Me inscrevi na Invasão Marco Zero. 🏃‍♂️💨\n\nSerão 8km com direito a travessia de barco!\nGaranta sua vaga aqui: https://seusite.com.br`);
     const shareLink = `https://wa.me/?text=${shareText}`;
@@ -304,37 +304,71 @@ const RegistrationForm = () => {
             <p className="text-slate-600">Te esperamos lá no Marco Zero.</p>
           </div>
           
-          <div className="relative bg-white border-2 border-orange-500 rounded-2xl p-6 shadow-2xl shadow-orange-500/20 mb-8 overflow-hidden">
-            <div className="relative z-10 text-center">
-              <span className="text-xs font-bold text-orange-600 uppercase tracking-widest border border-orange-200 px-3 py-1 rounded-full bg-orange-50">Comprovante de Inscrição</span>
-              <div className="my-6">
-                <div className="relative w-24 h-24 mx-auto mb-4">
-                  <div className="w-full h-full rounded-full border-4 border-green-500 shadow-lg bg-white flex items-center justify-center overflow-hidden">
-                    <img src="/icon.png" alt="Selo Invasores" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="absolute bottom-0 right-0 bg-green-500 text-white rounded-full p-1.5 border-4 border-white"><CheckCircle size={16} strokeWidth={4} /></div>
-                </div>
-                <div className="mb-2">
-                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Número</span>
-                  <p className="text-5xl font-black text-slate-900 font-mono tracking-tighter mt-1">#{confirmedData.numero_inscricao || "001"}</p>
-                </div>
-                <p className="text-xl font-black text-orange-600 italic uppercase mt-4">VAGA GARANTIDA</p>
+          {/* O CARTÃO BRANCO (Área do Print) */}
+          <div className="relative bg-white border-2 border-orange-500 rounded-3xl p-6 shadow-2xl shadow-orange-500/20 mb-8 overflow-hidden text-center">
+            <div className="relative z-10">
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-slate-900 font-black italic text-2xl tracking-tighter uppercase">Invasores</span>
+                <span className="text-[10px] font-bold text-orange-700 uppercase tracking-widest border border-orange-200 px-3 py-1 rounded-full bg-orange-50">Confirmado</span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 border-t border-slate-200 pt-4">
-                <div className="text-left"><p className="text-xs text-slate-500 uppercase font-bold">Atleta</p><p className="text-slate-900 font-bold truncate capitalize">{confirmedData.name}</p></div>
-                <div className="text-right"><p className="text-xs text-slate-500 uppercase font-bold">Modalidade</p><p className="text-orange-600 font-bold text-lg">{confirmedData.level}</p></div>
+              {/* A FOTO GIGANTE */}
+              <div className="relative w-full h-80 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 mb-6 shadow-inner">
+                {userPhoto ? (
+                  <img src={userPhoto} alt="Foto do Atleta" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-6 text-slate-400">
+                    <Camera size={48} className="mb-2 opacity-20" />
+                    <p className="text-xs font-bold uppercase tracking-widest">Sua foto aparecerá aqui</p>
+                  </div>
+                )}
+                
+                {/* SELO CENTRALIZADO */}
+                {userPhoto && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-green-600 text-white py-3 font-black italic text-sm flex items-center justify-center gap-2 shadow-lg">
+                    <CheckCircle size={18} className="animate-pulse" /> ATLETA CONFIRMADO
+                  </div>
+                )}
+              </div>
+
+              {/* DADOS DO ATLETA */}
+              <div className="space-y-4">
+                <div>
+                  <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Nome do Atleta</p>
+                  <p className="text-slate-900 text-3xl font-black capitalize leading-tight">{confirmedData.name}</p>
+                </div>
+
+                <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <div className="text-left">
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Nº Inscrição</p>
+                    <p className="text-orange-600 font-mono font-black text-2xl">#{confirmedData.numero_inscricao || "001"}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Modalidade</p>
+                    <p className="text-slate-900 font-bold text-lg">{confirmedData.level}</p>
+                  </div>
+                </div>
+
+                <div className="text-slate-500 text-[10px] font-bold uppercase tracking-widest pt-2">
+                  19/04/2026 • 06:00h • Marco Zero, Recife
+                </div>
               </div>
             </div>
           </div>
 
+          {/* BOTÕES DE AÇÃO (Fora do Cartão) */}
           <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl text-center space-y-3 shadow-sm">
             {isFreshRegistration ? (
               <div className="flex flex-col items-center justify-center gap-2 text-slate-600 mb-6 animate-pulse"><Loader2 className="w-5 h-5 animate-spin text-green-500" /><p className="text-sm font-bold">Abrindo o Grupo VIP...</p></div>
-            ) : ( <p className="text-slate-600 text-sm mb-4">Passos Importantes:</p> )}
+            ) : ( <p className="text-slate-600 text-sm mb-4">Personalize e Compartilhe:</p> )}
             
-            <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="block w-full bg-green-600 hover:bg-green-500 text-white font-black text-lg py-4 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 animate-pulse hover:animate-none">ENTRAR NO GRUPO VIP</a>
-            <a href={shareLink} target="_blank" rel="noopener noreferrer" className="block w-full bg-slate-900 hover:bg-slate-800 text-white font-black text-lg py-4 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3">CHAMAR UM PARCEIRO(A)</a>
+            <label className="flex w-full bg-slate-900 hover:bg-slate-800 text-white font-black text-sm py-4 rounded-xl shadow-lg transition-all items-center justify-center gap-3 cursor-pointer">
+              <Camera size={20} /> {userPhoto ? "TROCAR FOTO DA GALERIA" : "📸 ADICIONAR MINHA FOTO"}
+              <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+            </label>
+
+            <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="block w-full bg-green-600 hover:bg-green-500 text-white font-black text-sm py-4 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 animate-pulse hover:animate-none">ENTRAR NO GRUPO VIP</a>
+            <a href={shareLink} target="_blank" rel="noopener noreferrer" className="block w-full bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-black text-sm py-4 rounded-xl shadow-sm transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3"><Instagram size={18} /> CHAMAR UM PARCEIRO(A)</a>
             <a href={googleCalendarUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-slate-500 text-xs font-bold hover:text-orange-600 transition-colors mt-4"><CalendarPlus size={16} /> Salvar na Agenda (Google)</a>
             <button onClick={handleReset} className="text-slate-500 font-bold underline hover:text-slate-800 text-xs mt-6 block mx-auto">Fazer Nova Inscrição</button>
           </div>
@@ -358,10 +392,8 @@ const RegistrationForm = () => {
   }
 
   return (
-    // Zebra: Branco
     <div id="inscricao" className="bg-white px-4 py-20 pb-32 border-t border-slate-200 relative overflow-hidden">
       
-      {/* Ícones gigantes do fundo agora ESCONDIDOS no celular (hidden md:block) */}
       <Zap className="absolute -bottom-10 -left-10 w-40 h-40 text-orange-100/50 -rotate-12 pointer-events-none z-0 hidden md:block" />
       <MapPin className="absolute -top-10 -right-10 w-40 h-40 text-blue-100/50 rotate-12 pointer-events-none z-0 hidden md:block" />
 
