@@ -14,15 +14,15 @@ import GaleriaExperiencia from './components/GaleriaExperiencia';
 const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/BEjOT8bcJkZB8D8Krzxr3R";
 const INSTAGRAM_LINK = "https://www.instagram.com/invasores_081?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==";
 
-const EVENTO_DATA = '2026-04-12T06:00:00'; 
+const EVENTO_DATA = '2026-04-19T06:00:00'; 
 const DATA_LIMITE = new Date(EVENTO_DATA); 
 
 const EVENT_CONFIG = {
   name: "INVASÃO MARCO ZERO",
   tagline: "Corra, caminhe e atravesse a história de Recife.",
-  date: "12/04/2026", 
+  date: "19/04/2026", 
   location: "Praça do Marco Zero - Recife Antigo",
-  mapsLink: "https://maps.app.goo.gl/MarcoZeroExemplo",
+  mapsLink: "https://www.google.com/maps/search/?api=1&query=Praça+do+Marco+Zero+Recife",
   time: "06:00 (Concentração)",
   pace: "8km (Corrida ou Caminhada)",
   boatFee: "R$ 7,00 (Travessia)"

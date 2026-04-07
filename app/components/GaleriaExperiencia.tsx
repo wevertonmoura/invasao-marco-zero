@@ -33,8 +33,7 @@ const GaleriaExperiencia = () => {
     <section className="py-20 px-4 bg-white border-t border-slate-100 shadow-inner">
       <div className="container mx-auto max-w-lg">
         <div className="text-center mb-12">
-          <Camera className="w-10 h-10 text-orange-500 mx-auto mb-4" />
-          <h2 className="text-3xl font-black text-slate-900 italic tracking-tight uppercase leading-tight">Visual que te Inspira</h2>
+          
           <p className="text-slate-600 mt-4 text-lg font-medium max-w-sm mx-auto leading-relaxed">
             Visualize a energia única da travessia de barco e a beleza do Recife Antigo que te esperam.
           </p>
