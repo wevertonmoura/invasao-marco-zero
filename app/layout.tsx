@@ -11,19 +11,19 @@ const inter = Inter({
 
 // --- 🚀 SEO & METADADOS PROFISSIONAIS ---
 export const metadata: Metadata = {
-  title: "Treinão Invasores 2026 | Inscrição Gratuita",
-  description: "Garanta sua vaga no treino de corrida mais energia de Recife. Evento gratuito dia 25/01 em Boa Viagem. Caminhada, 5km e 10km.",
+  title: "Invasão Marco Zero | Treino Invasores",
+  description: "Garanta sua vaga no treino de 8km no Marco Zero. Uma experiência única no Recife Antigo com direito a travessia de barco!",
   
   // Palavras-chave para ajudar a achar no Google
-  keywords: ["corrida recife", "treino invasores", "corrida de rua", "boa viagem", "evento gratuito", "invasores running"],
+  keywords: ["corrida recife", "treino invasores", "corrida marco zero", "recife antigo", "corrida de rua", "invasores running", "parque das esculturas"],
   
   authors: [{ name: "Grupo Invasores" }],
   
   // Configuração para quando compartilhar o link no WhatsApp/Instagram
   openGraph: {
-    title: "Treinão Invasores 2026 - É Gratuito! 🏃‍♂️💨",
-    description: "Bora correr? Garanta sua vaga agora. Dia 25/01 em Boa Viagem.",
-    url: "https://treino-gratuito-invasores.vercel.app", // Seu link oficial
+    title: "Invasão Marco Zero - Treino Invasores! 🏃‍♂️⛴️",
+    description: "Bora pros 8km no Recife Antigo com travessia de barco? Garanta sua vaga agora!",
+    url: "https://treino-invasores.vercel.app", // Você pode atualizar com seu link oficial depois
     siteName: "Grupo Invasores",
     locale: "pt_BR",
     type: "website",
@@ -42,8 +42,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-br" className="scroll-smooth">
-      {/* Adicionei 'antialiased' para a fonte ficar mais nítida */}
-      <body className={`${inter.className} antialiased bg-slate-950 text-slate-200`}>
+      {/* Atualizado para fundo branco (bg-white) e texto escuro (text-slate-900) para combinar com o novo design */}
+      <body className={`${inter.className} antialiased bg-white text-slate-900`}>
         {children}
       </body>
     </html>
