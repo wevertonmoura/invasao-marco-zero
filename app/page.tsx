@@ -7,7 +7,7 @@ import {
   MapPin, Calendar, Clock, CheckCircle, 
   AlertCircle, ArrowRight, Activity, Zap, Trophy, Mail, 
   Loader2, Lock, HelpCircle, Instagram, CalendarPlus, Ship,
-  Camera // <-- Adicionado o ícone da Câmera aqui
+  Camera, Users // <-- Adicionado ícone de Usuários para a Equipe
 } from 'lucide-react';
 
 import GaleriaExperiencia from './components/GaleriaExperiencia'; 
@@ -209,13 +209,20 @@ const RegistrationForm = () => {
   const [errors, setErrors] = useState({ name: false, email: false });
   const [confirmedData, setConfirmedData] = useState<any>(null); 
   const [isFreshRegistration, setIsFreshRegistration] = useState(false);
-  
-  // NOVO ESTADO: Guarda a foto escolhida da galeria
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   
   const agora = new Date();
   const inscricoesEncerradas = agora > DATA_LIMITE;
-  const [formData, setFormData] = useState({ name: '', email: '', distance: 'Corrida 8km', health: '', health_details: '', termsAccepted: false });
+  
+  // ESTADO ATUALIZADO: Saiu health, entrou hasTeam e teamName
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    email: '', 
+    distance: 'Corrida 8km', 
+    hasTeam: 'Não', 
+    teamName: '', 
+    termsAccepted: false 
+  });
 
   useEffect(() => {
     const dadosSalvos = localStorage.getItem('invasores_marco_zero');
@@ -238,8 +245,8 @@ const RegistrationForm = () => {
   const handleReset = () => {
     localStorage.removeItem('invasores_marco_zero');
     setSuccess(false); setConfirmedData(null); setIsFreshRegistration(false);
-    setUserPhoto(null); // Limpa a foto
-    setFormData({ name: '', email: '', distance: 'Corrida 8km', health: '', health_details: '', termsAccepted: false });
+    setUserPhoto(null);
+    setFormData({ name: '', email: '', distance: 'Corrida 8km', hasTeam: 'Não', teamName: '', termsAccepted: false });
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -253,8 +260,11 @@ const RegistrationForm = () => {
   const handleSubmit = async () => {
     setErrors({ name: false, email: false }); setErrorMsg('');
 
-    if(!formData.name || !formData.email || !formData.distance || !formData.health || !formData.termsAccepted) {
+    if(!formData.name || !formData.email || !formData.distance || !formData.termsAccepted) {
       setErrorMsg("Por favor, preencha todos os campos e aceite os termos."); return;
+    }
+    if (formData.hasTeam === 'Sim' && formData.teamName.trim() === '') {
+      setErrorMsg("Por favor, digite o nome da sua equipe."); return;
     }
     if (formData.name.trim().length < 3) {
       setErrorMsg("O nome precisa ter pelo menos 3 letras."); setErrors(prev => ({ ...prev, name: true })); return;
@@ -271,13 +281,25 @@ const RegistrationForm = () => {
         setErrorMsg("Este e-mail já está inscrito! 🛑"); setErrors(prev => ({ ...prev, email: true })); setLoading(false); return; 
       }
 
-      const { data, error } = await supabase.from('inscricoes').insert([{ name: formData.name, email: formData.email, level: formData.distance, health: formData.health, health_details: formData.health_details, terms_accepted: formData.termsAccepted, age: null, phone: 'Não informado' }]).select().single();
+      // Preparando o nome da equipe para enviar pro banco
+      const equipeFinal = formData.hasTeam === 'Sim' ? formData.teamName : 'Nenhuma';
+
+      const { data, error } = await supabase.from('inscricoes').insert([{ 
+        name: formData.name, 
+        email: formData.email, 
+        level: formData.distance, 
+        equipe: equipeFinal, // <--- CAMPO NOVO AQUI. CRIAR NO SUPABASE!
+        terms_accepted: formData.termsAccepted, 
+        age: null, 
+        phone: 'Não informado' 
+      }]).select().single();
+      
       if (error) throw error;
 
       localStorage.setItem('invasores_marco_zero', JSON.stringify(data));
       setConfirmedData(data); setIsFreshRegistration(true); triggerConfetti(); setSuccess(true);
     } catch (error) {
-      console.error('Erro:', error); setErrorMsg("Erro ao realizar inscrição. Tente novamente.");
+      console.error('Erro:', error); setErrorMsg("Erro ao realizar inscrição. Verifique se a coluna 'equipe' foi criada no Supabase.");
     } finally {
       setLoading(false);
     }
@@ -290,11 +312,14 @@ const RegistrationForm = () => {
     }
   }, [success, confirmedData, isFreshRegistration]);
 
-  // === TELA DE SUCESSO (CARTÃO PREMIUM BRANCO) ===
+  // === TELA DE SUCESSO (O CARTÃO BRANCO) ===
   if (success && confirmedData) {
     const shareText = encodeURIComponent(`Fala! Me inscrevi na Invasão Marco Zero. 🏃‍♂️💨\n\nSerão 8km com direito a travessia de barco!\nGaranta sua vaga aqui: https://seusite.com.br`);
     const shareLink = `https://wa.me/?text=${shareText}`;
     const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(EVENT_CONFIG.name)}&dates=20260412T090000Z/20260412T130000Z&details=${encodeURIComponent(EVENT_CONFIG.tagline)}&location=${encodeURIComponent(EVENT_CONFIG.location)}`;
+
+    // Regra do Header: Se tiver equipe, mostra a equipe. Se for "Nenhuma", fica em branco (não aparece nada).
+    const headerTitle = confirmedData.equipe && confirmedData.equipe !== 'Nenhuma' ? confirmedData.equipe : '';
 
     return (
       <div id="inscricao" className="bg-white px-4 pt-20 pb-10">
@@ -304,12 +329,18 @@ const RegistrationForm = () => {
             <p className="text-slate-600">Te esperamos lá no Marco Zero.</p>
           </div>
           
-          {/* O CARTÃO BRANCO (Área do Print) */}
+          {/* CARTÃO BRANCO (Área do Print) */}
           <div className="relative bg-white border-2 border-orange-500 rounded-3xl p-6 shadow-2xl shadow-orange-500/20 mb-8 overflow-hidden text-center">
             <div className="relative z-10">
-              <div className="flex justify-between items-center mb-6">
-                <span className="text-slate-900 font-black italic text-2xl tracking-tighter uppercase">Invasores</span>
-                <span className="text-[10px] font-bold text-orange-700 uppercase tracking-widest border border-orange-200 px-3 py-1 rounded-full bg-orange-50">Confirmado</span>
+              
+              {/* HEADER DO CARTÃO (Onde ficava INVASORES) */}
+              <div className="flex justify-between items-center mb-6 h-8">
+                <span className="text-slate-900 font-black italic text-2xl tracking-tighter uppercase truncate max-w-[200px]">
+                  {headerTitle}
+                </span>
+                <span className="text-[10px] font-bold text-orange-700 uppercase tracking-widest border border-orange-200 px-3 py-1 rounded-full bg-orange-50 shrink-0">
+                  Confirmado
+                </span>
               </div>
 
               {/* A FOTO GIGANTE */}
@@ -437,26 +468,27 @@ const RegistrationForm = () => {
               </div>
             </div>
 
+            {/* NOVA SESSÃO: PERGUNTA SOBRE A EQUIPE */}
             <div className="space-y-3 pt-2">
               <div className="flex items-center gap-2 mb-2">
-                <div className="p-1.5 bg-pink-100 rounded-full"><Activity className="w-4 h-4 text-pink-600" /></div>
-                <label className="text-sm font-bold text-slate-700">Possui alguma condição de saúde?</label>
+                <div className="p-1.5 bg-blue-100 rounded-full"><Users className="w-4 h-4 text-blue-600" /></div>
+                <label className="text-sm font-bold text-slate-700">Você faz parte de alguma equipe?</label>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
-                <button onClick={() => setFormData({...formData, health: 'Não'})} className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all transform active:scale-95 ${formData.health === 'Não' ? 'bg-green-50 border-green-500 text-green-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'}`}>
-                  <span className="font-bold">Não, sou apto</span><CheckCircle className="w-5 h-5" />
+                <button onClick={() => setFormData({...formData, hasTeam: 'Não', teamName: ''})} className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all transform active:scale-95 ${formData.hasTeam === 'Não' ? 'bg-slate-200 border-slate-400 text-slate-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'}`}>
+                  <span className="font-bold">Nenhuma</span><CheckCircle className="w-5 h-5" />
                 </button>
-                <button onClick={() => setFormData({...formData, health: 'Sim'})} className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all transform active:scale-95 ${formData.health === 'Sim' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'}`}>
-                  <span className="font-bold">Sim, tenho</span><AlertCircle className="w-5 h-5" />
+                <button onClick={() => setFormData({...formData, hasTeam: 'Sim'})} className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all transform active:scale-95 ${formData.hasTeam === 'Sim' ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'}`}>
+                  <span className="font-bold">Sim, faço parte</span><Users className="w-5 h-5" />
                 </button>
               </div>
               
-              {formData.health === 'Sim' && (
+              {formData.hasTeam === 'Sim' && (
                 <div className="mt-2">
-                  <input type="text" placeholder="Qual? (Ex: Asma, Hipertensão...)" 
-                    className="w-full bg-slate-50 border border-red-300 text-slate-900 p-4 rounded-xl focus:ring-2 focus:ring-red-500 outline-none placeholder:text-slate-400 font-medium"
-                    value={formData.health_details} onChange={e => setFormData({...formData, health_details: e.target.value})} 
+                  <input type="text" placeholder="Qual o nome da sua equipe/assessoria?" 
+                    className="w-full bg-slate-50 border border-orange-300 text-slate-900 p-4 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none placeholder:text-slate-400 font-medium"
+                    value={formData.teamName} onChange={e => setFormData({...formData, teamName: e.target.value})} 
                   />
                 </div>
               )}
