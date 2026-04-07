@@ -18,7 +18,7 @@ const EVENTO_DATA = '2026-04-19T06:00:00';
 const DATA_LIMITE = new Date(EVENTO_DATA); 
 
 const EVENT_CONFIG = {
-  name: "INVASÃO MARCO ZERO",
+  name: "TREINÃO MARCO ZERO",
   tagline: "Corra, caminhe e atravesse a história de Recife.",
   date: "19/04/2026", 
   location: "Praça do Marco Zero - Recife Antigo",
@@ -142,7 +142,7 @@ const Hero = ({ onRegisterClick }: { onRegisterClick: () => void }) => (
 
       {/* Titulos com drop-shadow blindando a leitura contra a foto nítida */}
       <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-white mb-6 leading-[0.9] drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] relative z-20">
-        INVASÃO<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">MARCO ZERO</span>
+        TREINÃO<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">MARCO ZERO</span>
       </h1>
 
       <p className="text-slate-50 text-lg mb-8 max-w-sm mx-auto leading-relaxed font-medium drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] relative z-20">
